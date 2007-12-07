@@ -6,11 +6,19 @@ public class GeneticAlgorithm {
 	
 	public void run()
 	{		
-		String thirtyBits = new String(); // holds three, 10-bit signed 2's 
-		                                  // comp binary integers
+		String thirtyBits = new String(), // holds three, 10-bit signed 2's 
+		                                  // complement binary integers
+		       bestGenomeOfGen,  // best of generation genome
+		       worstGenomeOfGen; // worst of generation genome
+		String[] population;  // holds fitness of each individual in population
 		int numA, numB, numC, // represents the constants A, B, & C
-		    maxGenerations;   // maximum # of generations  
-		double fitness = -1;  // value of function after evaluation
+		    maxGenerations,   // maximum # of generations 
+		    m;                // the number of candidate solutions
+		double fitness = -1,  // value of function after evaluation
+		       bestFitOfGen,  // fitness of best-of-generation individual
+		       worstFitOfGen, // fitness of worst-of-generation individual
+		       avgFitOfGen = 0,   // average fitness of this generation
+		       bestFitOfRun;  // fitness of best-of-run individual
 		
 		
 		// Get variables A, B, & C
@@ -32,33 +40,104 @@ public class GeneticAlgorithm {
 			maxGenerations = read.nextInt();
 		}while(maxGenerations < 0);
 		
-		// Generate three, 10-bit signed 2's complement binary integer values,
-		// store in single String
+		// Randomly generate the number of candidate solutions then generate
+		// three, 10-bit signed 2's complement binary integer values for 
+		// each candidate solution
 		
-		thirtyBits = generateTenBits(thirtyBits);
-		thirtyBits = generateTenBits(thirtyBits);
-		thirtyBits = generateTenBits(thirtyBits);
-		System.out.println("             012345678901234567890123456789");
-		System.out.println("thirtyBits = " +thirtyBits);
+		Random randNum = new Random();
+		m = randNum.nextInt(100);
+		population = new String[m];
+		for(int i = 0; i < m; i++)
+		{
+			thirtyBits = generateTenBits(thirtyBits);
+			thirtyBits = generateTenBits(thirtyBits);
+			thirtyBits = generateTenBits(thirtyBits);
+			population[i] = thirtyBits;
+//			System.out.println("             012345678901234567890123456789");
+			System.out.println("thirtybits[" +i+ "] = " +thirtyBits);
+			thirtyBits = "";
+		}		
 		
-		// Get the fitness
+		// initialize values to first genome of initial generation to keep 
+		// track of various parameters 
 		
 	    int currentGen = 0;
-		while((currentGen < maxGenerations) && (fitness != 0))
+	    bestGenomeOfGen = population[0];  
+	    worstGenomeOfGen = population[0]; 
+	    bestFitOfGen = evaluateFitness(numA, numB, numC, population[0]); 
+	    worstFitOfGen = evaluateFitness(numA, numB, numC, population[0]);
+	    bestFitOfRun = evaluateFitness(numA, numB, numC, population[0]);
+	    int bestGenomeOfGenNum = 0;
+	    int worstGenomeOfGenNum = 0;
+	    int bestGenomeOfRunNum = 0;
+	      
+	    // Get the fitnesses, keeping track of various parameters 
+	    
+		while((currentGen < maxGenerations) && (bestFitOfGen != 0))
 		{
-			fitness = evaluateFitness(numA, numB, numC, thirtyBits);
-
+			System.out.println("Generation " +currentGen);
+			
 // crossover, mutation, & reproduction functions should probably go in here somewhere
+							    
+			// Runs through this generation's population and evaluates the fitness
+			// of each genome
+			
+		    for(int i = 0; i < m; i++)    
+		    {
+		    	double currentFit = evaluateFitness(numA, numB, numC, population[i]);
+		    	
+		    	if(bestFitOfGen > currentFit)
+		    	{
+		    		bestGenomeOfGenNum = i;
+		    		bestFitOfGen = currentFit;
+		    		bestGenomeOfGen = population[i];
+		    		if(bestFitOfRun > currentFit)
+		    		{
+		    			bestFitOfRun = currentFit;
+		    			bestGenomeOfRunNum = i;
+		    		}
+		    	}
+		    	
+		    	if(currentFit > worstFitOfGen)
+		    	{
+		    		worstGenomeOfGenNum = i;
+		    		worstFitOfGen = currentFit;
+		    		worstGenomeOfGen = population[i];
+		    	}
+		    	
+		    	avgFitOfGen = avgFitOfGen + 
+		    	              evaluateFitness(numA, numB, numC, population[i]);
+		    }
+		    avgFitOfGen = avgFitOfGen / m;
 			
 			if((currentGen == 0) || ((currentGen % 5) == 0))
 			{
-				System.out.println("Fitness of this x,y,z for "
-						           + "|A * (x^3) + B * (y^2) + C * z| = " +fitness);
+				System.out.println("Best genome of generation's number: " +bestGenomeOfGenNum);
+				System.out.println("Best genome of generation = " +bestGenomeOfGen);
+				System.out.println("Best genome of generation's fitness = " +bestFitOfGen);
+				System.out.println("Worst genome of generation's number: " +worstGenomeOfGenNum);
+				System.out.println("Worst genome of generation = " +worstGenomeOfGen);
+				System.out.println("Worst genome of generation's fitness = " +worstFitOfGen);
+				System.out.println("Average fitness of current generation's genomes = "
+						            + avgFitOfGen);
+//				System.out.println("Fitness of this x,y,z for "
+//						           + "|A * (x^3) + B * (y^2) + C * z| = " +fitness);
 			}
+			avgFitOfGen = 0;  // reset for next gen
 			currentGen++;
 		}
-		
+/*		
+		if(currentFit > worstFitOfGen)
+    	{
+    		worstGenomeOfGenNum = i;
+    		worstFitOfGen = currentFit;
+    		worstGenomeOfGen = population[i];
+    	}
+*/		
 		// Printout results of run here
+		System.out.println("Best-of-run genome's number: " +bestGenomeOfRunNum);
+		System.out.println("Best-of-run genome's fitness: " +bestFitOfRun);
+		System.out.println("Number of generations: " +currentGen);
 		
 	}
 	
@@ -92,15 +171,15 @@ public class GeneticAlgorithm {
 			    result = 0; // holds total value 
 				
 		x = twosComplementValue(bits, index);  
-		System.out.println("x's value in decimal = " +x);
+//		System.out.println("x's value in decimal = " +x);
 		result = a * (x * x * x);
 		
 		y = twosComplementValue(bits, index + 10);
-		System.out.println("y's value in decimal = " +y);
+//		System.out.println("y's value in decimal = " +y);
 		result = result + (b * (y * y));
 
 		z = twosComplementValue(bits, index + 20);
-		System.out.println("z's value in decimal = " +z);
+//		System.out.println("z's value in decimal = " +z);
 		result = result + (c * z);
 		
 		// Get absolute value
