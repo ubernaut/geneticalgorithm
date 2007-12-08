@@ -47,6 +47,7 @@ public class GeneticAlgorithm {
 		Random randNum = new Random();
 		m = randNum.nextInt(100);
 		population = new String[m];
+		double[] popFitness = new double[m];
 		for(int i = 0; i < m; i++)
 		{
 			thirtyBits = generateTenBits(thirtyBits);
@@ -77,10 +78,77 @@ public class GeneticAlgorithm {
 		{
 			System.out.println("Generation " +currentGen);
 			
-// crossover, mutation, & reproduction functions should probably go in here somewhere
+			// crossover, mutation, & reproduction functions should probably go in here somewhere
 							    
 			// Runs through this generation's population and evaluates the fitness
 			// of each genome
+			double runningSum= 0.0;
+			for(int i = 0; i < m; i++)    
+		    {
+				popFitness[i] = evaluateFitness(numA, numB, numC, population[i]);
+				
+				
+				if(popFitness[i]==0)popFitness[i]=1/(popFitness[i]+0.0001f);
+				else
+				{
+					popFitness[i]=1/popFitness[i];
+					System.out.println("popFitness= "+i+' '+popFitness[i]+' '+population[i]);
+					runningSum +=popFitness[i];
+				}
+		    }
+			Random rando = new Random();
+			
+			String[] nextGen = new String[m];
+			double theChoice = 0;
+			String[] crossHolder = new String[2];
+			int counter =0;
+			int it=0;
+			for(int genIndex=0; genIndex<m; genIndex++)
+			{
+				System.out.println("genIndex= "+genIndex);
+				System.out.println("running sum= "+runningSum);
+				theChoice = runningSum*rando.nextDouble();
+				
+				double anotherRunningSum=0.0;
+				
+				for(it =0; it < m; it++)
+				{
+					anotherRunningSum+=popFitness[it];
+					if(theChoice<=anotherRunningSum+popFitness[it]){
+						nextGen[genIndex]=population[it];
+						System.out.println("ONE GOT IN! at position "+ genIndex);
+						System.out.println (population[it]);
+						counter++;
+						
+						break;}
+					else;				
+				}
+				
+				
+				
+			}
+			if(counter<m)return;
+			for(int genIndex=0; genIndex<m; genIndex++)
+			{
+				if(genIndex%3 ==0 &&genIndex<m-1)
+				{
+					System.out.println("genIndex= "+genIndex);
+					crossHolder = crossOver(nextGen[genIndex],nextGen[genIndex+1]);
+					population[genIndex]=crossHolder[0];
+					population[genIndex+1]=crossHolder[1];
+					genIndex++;
+				}
+				else{
+					if(genIndex%2==0)
+					{
+						population[genIndex]=mutate(nextGen[genIndex]);
+					}
+					else population[genIndex]=reproduce(nextGen[genIndex]);
+					
+				}
+				
+			}
+			
 			
 		    for(int i = 0; i < m; i++)    
 		    {
@@ -142,7 +210,48 @@ public class GeneticAlgorithm {
 	}
 	
 	// Generates and returns a signed 10-bit 2's complement binary integer value
-	
+	public String[] crossOver(String alphaString, String betaString)
+	{
+		Random randNum = new Random();
+		randNum.nextInt();
+		String[] bothStrings=new String[2];
+		String alphaPrimeString = new String();
+		String betaPrimeString = new String();
+		int whichBit = Math.abs(randNum.nextInt(29));
+		if((whichBit>0)||(whichBit<29)){
+			System.out.println("wbit"+whichBit);
+			System.out.println("bstring "+betaString);
+			System.out.println("astring "+alphaString);
+						
+			alphaPrimeString = alphaString.substring(0, whichBit).concat(betaString.substring(whichBit));
+			betaPrimeString = betaString.substring(0, whichBit).concat(alphaString.substring(whichBit));
+			
+			bothStrings[0]=alphaPrimeString;
+			bothStrings[1]= betaPrimeString;
+		}
+		else {
+			bothStrings[0]=alphaString;
+			bothStrings[1]= betaString;}
+		return bothStrings;
+	}
+	public String mutate(String alphaString)
+	{
+		Random randNum = new Random();
+		randNum.nextInt();
+		char[] stringArray = alphaString.toCharArray();
+		int whichBit = Math.abs(randNum.nextInt()%29);
+		if(stringArray[whichBit]=='1')stringArray[whichBit]='0';
+		
+		else stringArray[whichBit]='1';
+		
+		alphaString = new String(stringArray);
+		return alphaString;
+	}
+	public String reproduce(String alphaString)
+	{
+		
+		return alphaString;
+	}
 	public String generateTenBits(String bits)
 	{
 		Random randNum = new Random(); // creates random int between 0 and 1
@@ -191,7 +300,7 @@ public class GeneticAlgorithm {
 	}
 	
 	// Gets decimal value from 10-bit signed 2's complement binary integers. 
-	
+
 	private double twosComplementValue(String binaryNum, int i)
 	{
 		int factor = 256,   // mult. factor for each binary position (1,2,4,8,16,32,etc.)
