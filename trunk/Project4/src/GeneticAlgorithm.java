@@ -92,7 +92,7 @@ public class GeneticAlgorithm {
 				else
 				{
 					popFitness[i]=1/popFitness[i];
-					System.out.println("popFitness= "+i+' '+popFitness[i]+' '+population[i]);
+					//System.out.println("popFitness= "+i+' '+popFitness[i]+' '+population[i]);
 					runningSum +=popFitness[i];
 				}
 		    }
@@ -105,8 +105,8 @@ public class GeneticAlgorithm {
 			int it=0;
 			for(int genIndex=0; genIndex<m; genIndex++)
 			{
-				System.out.println("genIndex= "+genIndex);
-				System.out.println("running sum= "+runningSum);
+				//System.out.println("genIndex= "+genIndex);
+				//System.out.println("running sum= "+runningSum);
 				theChoice = runningSum*rando.nextDouble();
 				
 				double anotherRunningSum=0.0;
@@ -116,8 +116,8 @@ public class GeneticAlgorithm {
 					anotherRunningSum+=popFitness[it];
 					if(theChoice<=anotherRunningSum+popFitness[it]){
 						nextGen[genIndex]=population[it];
-						System.out.println("ONE GOT IN! at position "+ genIndex);
-						System.out.println (population[it]);
+						//System.out.println("ONE GOT IN! at position "+ genIndex);
+						//System.out.println (population[it]);
 						counter++;
 						
 						break;}
@@ -132,7 +132,7 @@ public class GeneticAlgorithm {
 			{
 				if(genIndex%3 ==0 &&genIndex<m-1)
 				{
-					System.out.println("genIndex= "+genIndex);
+					//System.out.println("genIndex= "+genIndex);
 					crossHolder = crossOver(nextGen[genIndex],nextGen[genIndex+1]);
 					population[genIndex]=crossHolder[0];
 					population[genIndex+1]=crossHolder[1];
@@ -219,9 +219,9 @@ public class GeneticAlgorithm {
 		String betaPrimeString = new String();
 		int whichBit = Math.abs(randNum.nextInt(29));
 		if((whichBit>0)||(whichBit<29)){
-			System.out.println("wbit"+whichBit);
-			System.out.println("bstring "+betaString);
-			System.out.println("astring "+alphaString);
+			//System.out.println("wbit"+whichBit);
+			//System.out.println("bstring "+betaString);
+			//System.out.println("astring "+alphaString);
 						
 			alphaPrimeString = alphaString.substring(0, whichBit).concat(betaString.substring(whichBit));
 			betaPrimeString = betaString.substring(0, whichBit).concat(alphaString.substring(whichBit));
@@ -280,15 +280,15 @@ public class GeneticAlgorithm {
 			    result = 0; // holds total value 
 				
 		x = twosComplementValue(bits, index);  
-//		System.out.println("x's value in decimal = " +x);
+//		//System.out.println("x's value in decimal = " +x);
 		result = a * (x * x * x);
 		
 		y = twosComplementValue(bits, index + 10);
-//		System.out.println("y's value in decimal = " +y);
+//		//System.out.println("y's value in decimal = " +y);
 		result = result + (b * (y * y));
 
 		z = twosComplementValue(bits, index + 20);
-//		System.out.println("z's value in decimal = " +z);
+//		//System.out.println("z's value in decimal = " +z);
 		result = result + (c * z);
 		
 		// Get absolute value
